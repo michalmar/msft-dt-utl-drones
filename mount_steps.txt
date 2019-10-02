@@ -1,0 +1,52 @@
+sudo mkdir /mnt/ramdisk
+sudo mount -t tmpfs -o size=16g tmpfs /mnt/ramdisk
+sudo mkdir /mnt/ramdisk/blobfusetmp
+sudo chown vfn:vfn /mnt/ramdisk/blobfusetmp
+
+
+touch ~/fuse_conn_data-in.cfg
+echo accountName vfndataentrygate >> ~/fuse_conn_data-in.cfg
+echo accountKey Qf55cLoKvpxwnxiSrNjIkHrymoJPeQSp3lE12TEKb+hsC4wmRv3YK7i3GtI3BVzv9xqIBbWbkzSY2sVgn9Rizg== >> ~/fuse_conn_data-in.cfg
+echo containerName data-in >> ~/fuse_conn_data-in.cfg
+
+touch ~/fuse_conn_data-out.cfg
+echo accountName vfndataentrygate >> ~/fuse_conn_data-out.cfg
+echo accountKey Qf55cLoKvpxwnxiSrNjIkHrymoJPeQSp3lE12TEKb+hsC4wmRv3YK7i3GtI3BVzv9xqIBbWbkzSY2sVgn9Rizg== >> ~/fuse_conn_data-out.cfg
+echo containerName data-out >> ~/fuse_conn_data-out.cfg
+
+touch ~/fuse_conn_share.cfg
+echo accountName vfndataentrygate >> ~/fuse_conn_share.cfg
+echo accountKey Qf55cLoKvpxwnxiSrNjIkHrymoJPeQSp3lE12TEKb+hsC4wmRv3YK7i3GtI3BVzv9xqIBbWbkzSY2sVgn9Rizg== >> ~/fuse_conn_share.cfg
+echo containerName share >> ~/fuse_conn_share.cfg
+
+
+chmod 600 ~/fuse_conn*
+
+mkdir data-in
+mkdir data-out
+mkdir share
+
+
+--sudo blobfuse /data/home/vfn/cloudfiles/code/michal.marusan/data-in  --tmp-path=/mnt/resource/blobfusetmp  --config-file=/data/home/vfn/fuse_conn_data-in.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+--sudo blobfuse /data/home/vfn/cloudfiles/code/michal.marusan/data-out  --tmp-path=/mnt/resource/blobfusetmp  --config-file=/data/home/vfn/fuse_conn_data-out.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+--sudo blobfuse /data/home/vfn/cloudfiles/code/michal.marusan/share  --tmp-path=/mnt/resource/blobfusetmp  --config-file=/data/home/vfn/fuse_conn_share.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+
+sudo blobfuse /data/home/vfn/notebooks/data-in  --tmp-path=/mnt/resource/blobfusetmp  --config-file=/data/home/vfn/fuse_conn_data-in.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+sudo blobfuse /data/home/vfn/notebooks/data-out  --tmp-path=/mnt/resource/blobfusetmp  --config-file=/data/home/vfn/fuse_conn_data-out.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+sudo blobfuse /data/home/vfn/notebooks/share  --tmp-path=/mnt/resource/blobfusetmp  --config-file=/data/home/vfn/fuse_conn_share.cfg -o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other
+
+
+#### copy data
+cp ../data-in/vott-json-export.zip .
+unzip vott-json-export.zip
+rm vott-json-export.zip
+
+
+#### sample
+vott-json-export/A10%20-%20Namesti.mp4#t=10927.2.jpg
+
+python yolo_video.py --image
+
+python yolo_video.py --image --model logs/000/trained_weights_final.h5 --classes vott-json-export/classes.txt
+
+sudo fusermount -u data-in

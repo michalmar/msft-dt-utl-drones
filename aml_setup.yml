@@ -1,0 +1,49 @@
+Environment:
+  subscription_id: 6ee947fa-0d77-4915-bf68-4a83a8bec2a4
+  tenant_id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+  resource_group: DT-UTL-DronesV2
+  workspace_name: dt-utl-dronesv2
+  workspace_region: westeurope
+
+Datasources:
+  datasource1:
+    name: default-blob-storage?
+    container_name: data
+    account_name: 
+    account_key: 
+
+ProjectFolder:
+  folder: aml_prj
+
+Computes:
+  AMLCompute1:
+    name: amlgpu-low
+    vm_size : STANDARD_NC6S_V3 
+    vm_priority : lowpriority
+    min_nodes : 0
+    max_nodes : 1
+    idle_seconds_before_scaledown: 1200
+  
+  AMLCompute2:
+    name: amlgpu-ded
+    vm_size : STANDARD_NC6S_V3 
+    vm_priority : dedicated
+    min_nodes : 0
+    max_nodes : 1
+    idle_seconds_before_scaledown: 1200
+  
+  AMLCompute3:
+        name: amlcpu-low
+        vm_size : Standard_DS3_v2 
+        vm_priority : lowpriority 
+        min_nodes : 0
+        max_nodes : 10
+        idle_seconds_before_scaledown: 1200
+  
+  AMLCompute4:
+        name: amlcpu-ded
+        vm_size : Standard_DS3_v2 
+        vm_priority : dedicated 
+        min_nodes : 0
+        max_nodes : 10
+        idle_seconds_before_scaledown: 1200
