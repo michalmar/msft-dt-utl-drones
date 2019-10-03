@@ -2,17 +2,18 @@
 # Michal Marusan
 #
 # Usage:
-#   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file  
+#   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file DOTS-V2-export.json --prj_upd
 ###############################################################################
 import json
 import os
 import random
-import azureml.core
+# import azureml.core
+import argparse
+import shutil
 
 
 
-
-def convert_vott2yolo(dataset_dir, annotation_file):
+def convert_vott2yolo(dataset_dir, annotation_file, update_project_dir = False):
     annotations = json.load(open(os.path.join(dataset_dir, annotation_file)))
 
     clss = []
@@ -73,12 +74,18 @@ def convert_vott2yolo(dataset_dir, annotation_file):
         for annotation_row in annotation_rows_test:
             f.write(annotation_row)
 
+    if (update_project_dir):
+        shutil.copyfile(os.path.join(dataset_dir, "classes.txt"), os.path.join("aml_prj", "classes.txt"))
+        shutil.copyfile(os.path.join(dataset_dir, "annotations.txt"), os.path.join("aml_prj", "annotations.txt"))
+        shutil.copyfile(os.path.join(dataset_dir, "annotations_test.txt"), os.path.join("aml_prj", "annotations_test.txt"))
+        
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='AML Service Workspace setup.',argument_default=argparse.SUPPRESS)
     parser.add_argument('--dataset_dir', type=str, dest='dataset_dir', help='dataset_dir...', default="data")
     parser.add_argument('--annotation_file', type=str, dest='annotation_file', help='annotation_file...', default="xxx.json")
-    
+    parser.add_argument('--prj_upd', help='update also aml project', action='store_true')
     args = parser.parse_args()
 
     dataset_dir = args.dataset_dir
@@ -90,4 +97,4 @@ if __name__ == '__main__':
     ## new annotation from Filip based on new videos (202)
     # convert_vott2yolo("vott-json-export-20190808", "VFN-entry-gate-vid-export.json")
     # annotations from images only
-    convert_vott2yolo(dataset_dir, annotation_file)
+    convert_vott2yolo(dataset_dir, annotation_file, args.prj_upd)

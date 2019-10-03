@@ -3,7 +3,7 @@
 #
 # Usage:
 #   python train_aml_wrapper.py --aml_compute amlgpu-low
-#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path 'vott-json-export-20190808/annotations.txt' --log_dir 'logs/000/' --classes_path 'vott-json-export-20190808/classes.txt' --anchors_path 'vott-json-export-20190808/yolo_anchors.txt' --epochs_frozen 3 --epochs_unfrozen 4
+#   python train_aml_wrapper.py --aml_compute amlgpu-ded --annotation_path 'annotations.txt' --log_dir 'logs/000/' --classes_path 'classes.txt' --anchors_path 'yolo_anchors.txt' --epochs_frozen 3 --epochs_unfrozen 4
 
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded-new2
