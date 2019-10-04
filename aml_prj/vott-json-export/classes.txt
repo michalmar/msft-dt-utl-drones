@@ -1,4 +1,0 @@
-ER
-CAR
-PERSON
-TRUCK

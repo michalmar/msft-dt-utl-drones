@@ -1,0 +1,26 @@
+Environment:
+  subscription_id: 6ee947fa-0d77-4915-bf68-4a83a8bec2a4
+  tenant_id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+  resource_group: DT-UTL-DronesV2
+  workspace_name: dt-utl-dronesv2
+  workspace_region: westeurope
+
+Datasources:
+  datasource1:
+    name: dronesv2
+    container_name: data
+    account_name: dronesv2
+    account_key: WFsT/ZF05Yg5X00b+kG1gaD1tT4O30/xgzco+DAmEYm6F7FRij9irpzdmqZxVEd2D/RmAQC3j7GBPOH2k4sZKw==
+
+ProjectFolder:
+  folder: aml_prj
+
+Computes:
+  AMLCompute1:
+    name: amlgpu-low
+    vm_size : STANDARD_NC6S_V3 
+    vm_priority : lowpriority
+    min_nodes : 0
+    max_nodes : 1
+    idle_seconds_before_scaledown: 1200
+  

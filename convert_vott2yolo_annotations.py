@@ -75,9 +75,9 @@ def convert_vott2yolo(dataset_dir, annotation_file, update_project_dir = False):
             f.write(annotation_row)
 
     if (update_project_dir):
-        shutil.copyfile(os.path.join(dataset_dir, "classes.txt"), os.path.join("aml_prj", "classes.txt"))
-        shutil.copyfile(os.path.join(dataset_dir, "annotations.txt"), os.path.join("aml_prj", "annotations.txt"))
-        shutil.copyfile(os.path.join(dataset_dir, "annotations_test.txt"), os.path.join("aml_prj", "annotations_test.txt"))
+        shutil.copyfile(os.path.join(dataset_dir, "classes.txt"), os.path.join("aml_prj", "model_data","classes.txt"))
+        shutil.copyfile(os.path.join(dataset_dir, "annotations.txt"), os.path.join("aml_prj", "model_data","annotations.txt"))
+        shutil.copyfile(os.path.join(dataset_dir, "annotations_test.txt"), os.path.join("aml_prj", "model_data","annotations_test.txt"))
         
 
 if __name__ == '__main__':
