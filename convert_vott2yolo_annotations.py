@@ -32,12 +32,13 @@ def convert_vott2yolo(dataset_dir, annotation_file, update_project_dir = False):
         #     break
         w,h = (asset_tmp["asset"]["size"]["width"], asset_tmp["asset"]["size"]["height"])
         img_name = asset_tmp["asset"]["name"]
-        image_path = os.path.join("..","data-in",dataset_dir, img_name)
+        image_path = os.path.join(dataset_dir, img_name)
 
         annotation_row = f'{image_path}'
 
         regs = []
         tags = []
+        has_regions = False
         for ar in asset_tmp["regions"]:
             reg_type = ar["type"]
             reg_tags = ar["tags"]
@@ -51,13 +52,15 @@ def convert_vott2yolo(dataset_dir, annotation_file, update_project_dir = False):
             r["shape_attributes"] = {"all_points_x": r_all_points_x, "all_points_y": r_all_points_y}
             regs.append(r)
             tags.append(reg_tags)
+            has_regions = True
 
             # Row format: image_file_path box1 box2 ... boxN;
             # Box format: x_min,y_min,x_max,y_max,class_id (no space).
             annotation_row += f' {int(r_all_points_x[0])},{int(r_all_points_y[0])},{int(r_all_points_x[2])},{int(r_all_points_y[2])},{clss.index(ar["tags"][0])}'
         
         annotation_row += "\n"
-        annotation_rows.append(annotation_row)
+        if (has_regions):
+            annotation_rows.append(annotation_row)
 
     # division to TRAIN and TEST (random)
     random.shuffle(annotation_rows)
