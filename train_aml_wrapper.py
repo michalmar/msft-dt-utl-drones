@@ -3,7 +3,7 @@
 #
 # Usage:
 #   python train_aml_wrapper.py --aml_compute amlgpu-low
-#   python train_aml_wrapper.py --aml_compute amlgpu-ded --annotation_path 'annotations.txt' --log_dir 'logs/000/' --classes_path 'classes.txt' --anchors_path 'yolo_anchors.txt' --epochs_frozen 3 --epochs_unfrozen 4
+#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "logs/000/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 3 --epochs_unfrozen 4
 
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded-new2
@@ -35,7 +35,8 @@ parser.add_argument('--epochs_unfrozen', type=str, dest='epochs_unfrozen', help=
 args = parser.parse_args()
 
 # due to diferent tenant -> typically customer tenant
-interactive_auth = InteractiveLoginAuthentication(tenant_id="0f277086-d4e0-4971-bc1a-bbc5df0eb246")
+# interactive_auth = InteractiveLoginAuthentication(tenant_id="0f277086-d4e0-4971-bc1a-bbc5df0eb246") # VFN tenant
+interactive_auth = InteractiveLoginAuthentication(tenant_id="72f988bf-86f1-41af-91ab-2d7cd011db47") # MSFT tenant
 
 ws = Workspace.from_config()
 print(ws.name, ws.resource_group, ws.location, ws.subscription_id, sep='\n')
@@ -43,7 +44,7 @@ print(ws.name, ws.resource_group, ws.location, ws.subscription_id, sep='\n')
 
 # ws.datastores
 
-dsname = 'gatecontrol_storage'
+dsname = 'dronesv2'
 if (dsname in ws.datastores):
     print(f"found existing datastore: {dsname}")
     ds = ws.datastores[dsname]
@@ -52,7 +53,7 @@ else:
     quit()
 
 # experiment_name = 'gc-yolo3-clean'
-experiment_name = 'gc-yolo3'
+experiment_name = 'drones-yolo3'
 exp = Experiment(workspace=ws, name=experiment_name)
 
 import os
@@ -95,7 +96,7 @@ from azureml.train.estimator import Estimator
 
 script_params = {
     # '--data-folder': ds.path('vott-json-export-20190618').as_mount(),
-    '--data-folder': ds.path('vott-json-export-20190808-merged').as_mount(),
+    '--data-folder': ds.path('data').as_mount(),
     '--model-folder': ds.path('model_data').as_mount(),
     '--annotation_path': args.annotation_path,
     '--log_dir': args.log_dir,
