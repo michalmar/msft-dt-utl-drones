@@ -2,7 +2,7 @@
 # Michal Marusan
 #
 # Usage:
-#   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file DOTS-V2-export.json --prj_upd
+#   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file DOTS-V2-export-Jakub.json --prj_upd
 ###############################################################################
 import json
 import os
@@ -94,10 +94,16 @@ if __name__ == '__main__':
     dataset_dir = args.dataset_dir
     annotation_file = args.annotation_file
 
+    try:
+        if (args.prj_upd):
+            prj_upd = True
+    except:
+        prj_upd = False
+
     # convert_vott2yolo("vott-json-export", "VFN-entry-gate-vid-export.json")
     # convert_vott2yolo("vott-json-export-20190618", "VFN-Gate-Control-short-Videos-Images-only-export.json")
 
     ## new annotation from Filip based on new videos (202)
     # convert_vott2yolo("vott-json-export-20190808", "VFN-entry-gate-vid-export.json")
     # annotations from images only
-    convert_vott2yolo(dataset_dir, annotation_file, args.prj_upd)
+    convert_vott2yolo(dataset_dir, annotation_file, )

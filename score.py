@@ -24,7 +24,7 @@ def init(locally=False):
     # model_path = "/var/azureml-app/azureml-models/trained_weights_final.h5/1/trained_weights_final.h5"
     
     # init YOLO Class
-    yolo = YOLO(model_path=model_path,anchors_path='vott-json-export/yolo_anchors.txt',classes_path='vott-json-export/classes.txt',model_image_size=(416, 416))
+    yolo = YOLO(model_path=model_path,anchors_path='model_data/yolo_anchors.txt',classes_path='model_data/classes.txt',model_image_size=(416, 416))
     
     # model = yolo_body(Input(shape=(None,None,3)), num_anchors//3, num_classes)
     # model.load_weights(model_path) # make sure model, anchors and classes match
@@ -38,7 +38,7 @@ def run(raw_data):
         # image = Image.open(BytesIO(base64.b64decode(json.loads(raw_data)['data'])))
         image = Image.open(BytesIO(base64.b64decode(raw_data)))
         # image.save("out.png","PNG")
-        # image = Image.open("../data-in/vott-json-export/A10%20-%20Namesti.mp4#t=19060.4.jpg")
+        # image = Image.open("../data-in/model_data/A10%20-%20Namesti.mp4#t=19060.4.jpg")
         out_dict = yolo.detect_image(image, output_detections=True)
         # you can return any datatype as long as it is JSON-serializable
         return out_dict["detections"]
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     init(locally=True)
 
 
-    f ="../data-in/vott-json-export/A10%20-%20Namesti.mp4#t=19060.4.jpg"
+    f ="data\WIN_20190920_12_59_28_Pro.jpg"
     img = Image.open(f)
     # data = base64.b64encode(image_to_byte_array(img)).decode('utf-8')
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 # print("loaded")
 
 # # init YOLO Class
-# yolo = YOLO(model_path='outputs/trained_weights_final.h5',anchors_path='model_data/yolo_anchors.txt',classes_path='vott-json-export/classes.txt',model_image_size=(416, 416))
+# yolo = YOLO(model_path='outputs/trained_weights_final.h5',anchors_path='model_data/yolo_anchors.txt',classes_path='model_data/classes.txt',model_image_size=(416, 416))
 
 # # run detection
 # image = Image.open("../data-in/vott-json-export/A10%20-%20Namesti.mp4#t=19060.4.jpg")

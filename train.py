@@ -14,6 +14,16 @@ from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, Ear
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
 from yolo3.utils import get_random_data
 
+import keras.callbacks as KC
+class LossAndErrorPrintingCallback(KC.Callback):
+
+  def on_epoch_end(self, epoch, logs=None):
+    # run = Run.get_context()
+    # run.log("EPOCH_loss", logs["loss"])   
+    # run.log("EPOCH_val_loss", logs["val_loss"])
+    print('MMA CALLBACK: The average loss for epoch {} is {:7.2f}.'.format(epoch, logs['loss']))
+    print('MMA CALLBACK: The average val loss for epoch {} is {:7.2f}.'.format(epoch, logs['val_loss']))
+
 
 def _main():
     annotation_path = 'data/annotations.txt'
@@ -39,6 +49,7 @@ def _main():
         monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
     early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
+    custom_log = LossAndErrorPrintingCallback()
 
     val_split = 0.1
     with open(annotation_path) as f:
@@ -64,7 +75,7 @@ def _main():
                 validation_steps=max(1, num_val//batch_size),
                 epochs=2,
                 initial_epoch=0,
-                callbacks=[logging, checkpoint])
+                callbacks=[logging, checkpoint,custom_log])
         model.save_weights(log_dir + 'trained_weights_stage_1.h5')
 
     # Unfreeze and continue training, to fine-tune.
