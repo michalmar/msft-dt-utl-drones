@@ -4,7 +4,7 @@
 # Usage:
 #   python train_aml_wrapper.py --aml_compute amlgpu-low
 #   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "logs/000/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 3 --epochs_unfrozen 4
-
+#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "logs/000/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 60 --epochs_unfrozen 200
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded-new2
 ###############################################################################

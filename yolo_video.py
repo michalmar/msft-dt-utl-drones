@@ -1,43 +1,13 @@
 """
 
 VFN NTB Image Scoring:
-python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt 
-python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export-20190618/classes.txt 
+python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path data/classes.txt 
 
---img_path ../data-in/vott-json-export/A10%20-%20Ulice.mp4#t=19052.2.jpg
+--img_path ../data-in/data/A10%20-%20Ulice.mp4#t=19052.2.jpg
 
 VFN NTB Image Scoring - all annotation_test:
-python yolo_video.py --image --model_path logs/001/trained_weights_final.h5 --classes_path vott-json-export/classes.txt --imgs_annotation_path vott-json-export/annotations_test.txt
-python yolo_video.py --image --imgs_annotation_path vott-json-export/annotations_test.txt
-
-python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt --imgs_annotation_path vott-json-export/annotations_test.txt
-
-
-python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export-20190618/classes.txt --imgs_annotation_path vott-json-export-20190618/annotations_test.txt
-
-
-
-VFN NTB Video scoring:
-python yolo_video.py --input ../data-in/video_test/test_110sec.mp4 --output ../data-out/test_110sec_DETECTED_20190808.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_128sec.mp4 --output ../data-out/test_128sec_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_24sec.mp4 --output ../data-out/test_24sec.mp4_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_40sec.mp4 --output ../data-out/test_40sec.mp4_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_59sec.mp4 --output ../data-out/test_59sec.mp4_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_66sec.mp4 --output ../data-out/test_66sec.mp4_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_7sec.mp4 --output ../data-out/test_7sec.mp4_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_84sec.mp4 --output ../data-out/test_84sec.mp4_DETECTED.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt
-python yolo_video.py --input ../data-in/video_test/test_ups.mp4 --output ../data-out/test_ups.mp4_DETECTED3.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export-20190618/classes.txt
-
-nohup ./score_videos.sh &
-
-YOLO ORIGINAL:
-python yolo_video.py --input ../data-in/video_test/test_7sec.mp4 --output ../data-out/test_7sec.mp4_DETECTED_YOLO.mp4
-python yolo_video.py --input ../data-in/video_test/test_ups.mp4 --output ../data-out/test_ups.mp4_DETECTED_YOLO.mp4
-
-nohup python yolo_video.py --image --imgs_annotation_path vott-json-export/annotations.txt > out/yolo_labeling.txt &
-nohup python yolo_video.py --image --imgs_annotation_path vott-json-export-20190618/annotations.txt > out/yolo_labeling-20190618.txt &
-cat out/yolo_labeling.txt | grep "###EXPORT###" > out/yolo_labeling_filtered.txt 
-rm out/yolo_labeling* 
+python yolo_video.py --image --model_path logs/001/trained_weights_final.h5 --classes_path data/classes.txt --imgs_annotation_path data/annotations_test.txt
+python yolo_video.py --image --imgs_annotation_path data/annotations_test.txt
 """
 import sys
 import argparse
@@ -66,7 +36,7 @@ def detect_img_test_annotation(yolo):
     annotation_path = yolo.imgs_annotation_path
     print(f"yolo.imgs_annotation_path:{yolo.imgs_annotation_path}")
     try:
-        # annotation_path = "vott-json-export/annotations_test.txt"
+        # annotation_path = "data/annotations_test.txt"
         with open(annotation_path) as f:
             lines = f.readlines()
         for annotation_line in lines:

@@ -6,6 +6,7 @@ logs/
 *_test.py
 
 tmp/
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -3,6 +3,8 @@
 #
 # Usage:
 #   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file DOTS-V2-export-Jakub.json --prj_upd
+#   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file DOTS-V2-export-Jakub.json
+#   python convert_vott2yolo_annotations.py --dataset_dir data  --annotation_file DRONES-LOCAL-export.json
 ###############################################################################
 import json
 import os
@@ -64,7 +66,7 @@ def convert_vott2yolo(dataset_dir, annotation_file, update_project_dir = False):
 
     # division to TRAIN and TEST (random)
     random.shuffle(annotation_rows)
-    split_ratio = 0.8
+    split_ratio = 0.9
     split_index = int(len(annotation_rows) * split_ratio)
     annotation_rows_train = annotation_rows[:split_index]
     annotation_rows_test = annotation_rows[split_index:]
@@ -95,6 +97,7 @@ if __name__ == '__main__':
     annotation_file = args.annotation_file
 
     try:
+        print(args.prj_upd)
         if (args.prj_upd):
             prj_upd = True
     except:
@@ -106,4 +109,4 @@ if __name__ == '__main__':
     ## new annotation from Filip based on new videos (202)
     # convert_vott2yolo("vott-json-export-20190808", "VFN-entry-gate-vid-export.json")
     # annotations from images only
-    convert_vott2yolo(dataset_dir, annotation_file, )
+    convert_vott2yolo(dataset_dir, annotation_file, prj_upd)
