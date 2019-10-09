@@ -53,7 +53,7 @@ else:
     quit()
 
 # experiment_name = 'gc-yolo3-clean'
-experiment_name = 'drones-yolo3'
+experiment_name = 'drones-yolo3-clean'
 exp = Experiment(workspace=ws, name=experiment_name)
 
 import os
