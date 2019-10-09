@@ -20,7 +20,7 @@ def init(locally=False):
     if (locally):
         model_path = 'outputs/trained_weights_final.h5'
     else: 
-        model_path = Model.get_model_path('trained_weights_final_cls4.h5')
+        model_path = Model.get_model_path('dronesv2.h5')
     # model_path = "/var/azureml-app/azureml-models/trained_weights_final.h5/1/trained_weights_final.h5"
     
     # init YOLO Class
