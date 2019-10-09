@@ -47,6 +47,6 @@ vott-json-export/A10%20-%20Namesti.mp4#t=10927.2.jpg
 
 python yolo_video.py --image
 
-python yolo_video.py --image --model logs/000/trained_weights_final.h5 --classes vott-json-export/classes.txt
+python yolo_video.py --image --model outputs/trained_weights_final.h5 --classes vott-json-export/classes.txt
 
 sudo fusermount -u data-in

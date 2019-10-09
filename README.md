@@ -1,18 +1,21 @@
-# VFN-Gate-Control
-
-### 20190808
-- tag "images-only" z 20190808
-- + new tags "202" (new videos)
+# DOTS - Utils - Drones V2
 
 ## Workflow:
-1. convert VOTT->YOLO annotation `python convert_vott2yolo_annotations.py`
-1. [manual] change of annotation files -> merge, rename, copy to `aml_prj` (with removed path)
-1. [manual] copy images to blob (data-in)
+### 01 data prep (convert VOTT->YOLO annotation)
+1. get the exported`*.JSON` file from VOTT tagging tool and copy somwhere on FS (ideally new folder...)
+1. run the conversion Python script `python convert_vott2yolo_annotations.py`
+1. change of annotation files in  `aml_prj` (removed path) 
+    `../data-in/vott-json-export-20190808/A10%20-%20Namesti%202.mp4#t=16240.6.jpg 459,74,704,249,0`
+    will be
+    `A10%20-%20Namesti%202.mp4#t=16240.6.jpg 459,74,704,249,0`
+1. copy images to blob (data-in, remeber the folder structure)
 
-
-### Training
-`python train_aml_wrapper.py --aml_compute amlgpu-low`
-
+### 02 run the TRAINING
+1. modify `train_aml_wrapper.py` (TODO: create paratmer for that): line 98 -> put correct name of the folder
+1. run remote training
+`python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path 'vott-json-export-20190808/annotations.txt' --log_dir 'outputs/' --classes_path 'vott-json-export-20190808/classes.txt' --anchors_path 'vott-json-export-20190808/yolo_anchors.txt' --epochs_frozen 133 --epochs_unfrozen 666`
+> note: don't forget to use proper name of folders (in paths)
+> note: set parameters  epochs_frozen / epochs_unfrozen accordingly or leave as default
 ```
         usage: train_aml_wrapper.py [-h] [--aml_compute AML_COMPUTE]
                                     [--annotation_path ANNOTATION_PATH]
@@ -38,13 +41,15 @@
                                 epochs on unfrozen heads - all net
 ```
 
-### Inference
+### 03 Inference
+
+**single image**
+`python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export-20190618/classes.txt `
+
+**Video**
 `python yolo_video.py --input ../data-in/video_test/test_110sec.mp4 --output ../data-out/test_110sec_DETECTED_20190808.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt`
 > note: number of classes must be same as for training (otherwise error with mismatch dimension can appear)
 > better to use correct classess file from training `--classes_path ./vott-json-export-20190808/classes.txt`
-
-
-
 
 
 

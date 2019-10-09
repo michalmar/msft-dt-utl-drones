@@ -3,8 +3,8 @@
 #
 # Usage:
 #   python train_aml_wrapper.py --aml_compute amlgpu-low
-#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "logs/000/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 3 --epochs_unfrozen 4
-#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "logs/000/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 60 --epochs_unfrozen 200
+#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "outputs/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 3 --epochs_unfrozen 4
+#   python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "outputs/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 60 --epochs_unfrozen 200
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded
 #   python train_aml_wrapper.py --aml_compute amlgpu-ded-new2
 ###############################################################################
@@ -26,7 +26,7 @@ Command line options
 '''
 parser.add_argument('--aml_compute', type=str, dest='aml_compute', help='Set specific AML Compute, using default if not set.', default="###")
 parser.add_argument('--annotation_path', type=str, dest='annotation_path', help='path to training files annotation', default='vott-json-export-20190808/annotations.txt')
-parser.add_argument('--log_dir', type=str, dest='log_dir', help='where logs and intermediate model are placed', default='logs/000/' )
+parser.add_argument('--log_dir', type=str, dest='log_dir', help='where logs and intermediate model are placed', default='outputs/' )
 parser.add_argument('--classes_path', type=str, dest='classes_path', help='path to training classes', default='vott-json-export-20190808/classes.txt') 
 parser.add_argument('--anchors_path', type=str, dest='anchors_path', help='path to training anchors', default='vott-json-export-20190808/yolo_anchors.txt') 
 parser.add_argument('--epochs_frozen', type=str, dest='epochs_frozen', help='epochs on frozen heads', default=33) 
