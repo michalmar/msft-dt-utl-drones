@@ -13,7 +13,7 @@
 ### 02 run the TRAINING
 1. modify `train_aml_wrapper.py` (TODO: create paratmer for that): line 98 -> put correct name of the folder
 1. run remote training
-`python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path 'vott-json-export-20190808/annotations.txt' --log_dir 'outputs/' --classes_path 'vott-json-export-20190808/classes.txt' --anchors_path 'vott-json-export-20190808/yolo_anchors.txt' --epochs_frozen 133 --epochs_unfrozen 666`
+`python train_aml_wrapper.py --aml_compute amlgpu-low --annotation_path "model_data/annotations.txt" --log_dir "outputs/" --classes_path "model_data/classes.txt" --anchors_path "model_data/yolo_anchors.txt" --epochs_frozen 60 --epochs_unfrozen 300`
 > note: don't forget to use proper name of folders (in paths)
 > note: set parameters  epochs_frozen / epochs_unfrozen accordingly or leave as default
 ```
