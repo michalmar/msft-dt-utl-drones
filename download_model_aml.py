@@ -37,7 +37,8 @@ exp_name = args.exp_name
 
 
 # due to diferent tenant -> typically customer tenant
-interactive_auth = InteractiveLoginAuthentication(tenant_id="0f277086-d4e0-4971-bc1a-bbc5df0eb246")
+# interactive_auth = InteractiveLoginAuthentication(tenant_id="0f277086-d4e0-4971-bc1a-bbc5df0eb246")
+interactive_auth = InteractiveLoginAuthentication(tenant_id="72f988bf-86f1-41af-91ab-2d7cd011db47") # MSFT tenant
 
 ws = Workspace.from_config()
 print(ws.name, ws.resource_group, ws.location, ws.subscription_id, sep='\n')

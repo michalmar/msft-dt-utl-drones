@@ -1,0 +1,11 @@
+# USER root
+
+RUN apt-get update
+RUN apt-get -y install libpng-dev
+RUN apt-get -y install libjasper-dev
+RUN apt-get -y install build-essential checkinstall cmake pkg-config yasm gfortran git
+RUN apt-get -y install libjpeg8-dev libjasper-dev libpng12-dev
+RUN apt-get -y install libtiff5-dev
+RUN apt-get -y install libsm6 libxrender1
+RUN conda install cudatoolkit=9.0
+RUN conda install cudnn=7.1.2

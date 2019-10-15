@@ -8,6 +8,9 @@ from azureml.core import Workspace,Datastore
 
 print("SDK version:", azureml.core.VERSION)
 
+
+REGISTER_MODEL = False
+
 import argparse
 # class YOLO defines the default value, so suppress any default here
 parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
@@ -28,7 +31,7 @@ print(ws.name, ws.resource_group, ws.location, ws.subscription_id, sep='\n')
 
 
 # ws.models
-experiment_name = 'drones-yolo3'
+experiment_name = 'drones-yolo3-clean'
 exp = Experiment(workspace=ws, name=experiment_name)
 
 
@@ -68,7 +71,18 @@ xrun = getAMLLastRun(exp)
 
 print(f"run:{xrun}")
 
-xrun.download_file(name="outputs/trained_weights_final.h5", output_file_path="outputs")
+
+
+# xrun.download_file(name="outputs/trained_weights_final.h5", output_file_path="outputs")
+import os
+# download model -> download rather to blob
+if not(os.path.exists(os.path.join("outputs","trained_weights_final.h5"))):
+    print(f"downloading model from experiment {exp.name}...")
+    xrun.download_file(name="outputs/trained_weights_final.h5", output_file_path="outputs")
+    print("done.")
+else:
+    print(f'target file already exists {os.path.exists(os.path.join("outputs","trained_weights_final.h5"))} - download skipped')
+
 
 ########################################################################################
 
@@ -76,13 +90,16 @@ xrun.download_file(name="outputs/trained_weights_final.h5", output_file_path="ou
 
 # Register model
 from azureml.core.model import Model
-model = Model.register(model_path = "outputs/ep024-loss246.116-val_loss246.895.h5",
-                       model_name = "dronesv2.h5",
-                       tags = {'type': "yolov3"},
-                       description = "DT Utility - Drones Demo - V2",
-                       workspace = ws)
 
-print(model.name, model.description, model.version, sep = '\t')
+if (REGISTER_MODEL):
+    print(f"registering model...")
+    model = Model.register(model_path = "outputs/trained_weights_final.h5",
+                        model_name = "dronesv2.h5",
+                        tags = {'type': "yolov3"},
+                        description = "DT Utility - Drones Demo - V2",
+                        workspace = ws)
+
+# print(model.name, model.description, model.version, sep = '\t')
 
 try:
     print(model.name, model.description, model.version, sep = '\t')
@@ -99,29 +116,86 @@ except:
 
 
 from azureml.core.conda_dependencies import CondaDependencies 
-
 import os
 script_folder = os.path.join(os.getcwd(), "aml_deploy_prj")
 os.makedirs(script_folder, exist_ok=True)
 
-myenv = CondaDependencies.create(conda_packages=['numpy','keras','Pillow','matplotlib'])
-myenv.add_tensorflow_pip_package(core_type="cpu", version=None)
+USE_GPU = True
+if (USE_GPU):
+        
+    myenv = CondaDependencies.create(conda_packages=['cudatoolkit==9.0','cudnn=7.1.2','numpy==1.14.5','keras==2.2.4','Pillow','matplotlib'])
+    # myenv = CondaDependencies.create(conda_packages=['numpy','keras','Pillow','matplotlib'])
+    myenv.add_tensorflow_pip_package(core_type="gpu", version="1.12.0")
 
-with open(os.path.join(script_folder,"myenv-cpu.yml"),"w") as f:
-    f.write(myenv.serialize_to_string())
+    with open(os.path.join(script_folder,"myenv-gpu.yml"),"w") as f:
+        f.write(myenv.serialize_to_string())
+
+else:
+        
+    myenv = CondaDependencies.create(conda_packages=['numpy','keras','Pillow','matplotlib'])
+    myenv.add_tensorflow_pip_package(core_type="cpu", version=None)
+
+    with open(os.path.join(script_folder,"myenv-cpu.yml"),"w") as f:
+        f.write(myenv.serialize_to_string())
 
 
-
+USE_GPU = True
 from azureml.core.image import Image, ContainerImage
+if (USE_GPU):
+    print("GPU Image")
+    image_config = ContainerImage.image_configuration(runtime= "python",
+                                 execution_script="score_deploy.py",
+                                 conda_file="aml_deploy_prj/myenv-gpu.yml",
+                                 dependencies=["aml_deploy_prj", "font"],
+                                 tags = {'type': "yolov3"},
+                                 docker_file = "./aml_deploy_prj/docker_file_steps_gpu.txt",
+                                 description = "Image with Drones detection model")
+    # image_config.base_image = xrun.properties["AzureML.DerivedImageName"]
+    image = Image.create(name = "dronesv2-img-gpu",
+                     # this is the model object. note you can pass in 0-n models via this list-type parameter
+                     # in case you need to reference multiple models, or none at all, in your scoring script.
+                     models = [model],
+                     image_config = image_config, 
+                     workspace = ws)
 
-image_config = ContainerImage.image_configuration(runtime= "python",
-                                 execution_script="score.py",
+else:
+    print("CPU Image")
+    image_config = ContainerImage.image_configuration(runtime= "python",
+                                 execution_script="score_deploy.py",
                                  conda_file="aml_deploy_prj/myenv-cpu.yml",
-                                 dependencies=["yolo.py", "yolo3","aml_deploy_prj", "font"],
+                                 dependencies=["aml_deploy_prj", "font"],
                                  tags = {'type': "yolov3"},
                                  description = "Image with Drones detection model")
 
-image = Image.create(name = "dronesv2-img",
+
+    image = Image.create(name = "dronesv2-img",
+                     # this is the model object. note you can pass in 0-n models via this list-type parameter
+                     # in case you need to reference multiple models, or none at all, in your scoring script.
+                     models = [model],
+                     image_config = image_config, 
+                     workspace = ws)
+
+
+
+image.wait_for_creation(show_output = True)
+
+
+
+
+#### IMAGE FROM UTILS
+from azureml.core.image import Image
+
+image_config = ContainerImage.image_configuration(runtime= "python",
+                                 execution_script="score_deploy.py",
+                                 conda_file="aml_deploy_prj/myenv-gpu.yml",
+                                 dependencies=["aml_deploy_prj", "font"],
+                                 tags = {'type': "yolov3"},
+                                 description = "Image with Drones detection model"
+                                 , docker_file = "./aml_deploy_prj/docker_file_steps_gpu.txt"
+                                 , enable_gpu=True
+                                 )
+    
+image = Image.create(name = "dronesv2-img-gpu",
                      # this is the model object. note you can pass in 0-n models via this list-type parameter
                      # in case you need to reference multiple models, or none at all, in your scoring script.
                      models = [model],
@@ -129,9 +203,6 @@ image = Image.create(name = "dronesv2-img",
                      workspace = ws)
 
 image.wait_for_creation(show_output = True)
-
-
-
 
 # # List images by tag and find out the detailed build log for debugging.
 # for i in Image.list(workspace = ws):
@@ -163,6 +234,48 @@ print(aks_service.state)
 
 print(aks_service.get_logs())
 
+
+
+##########ACI##################################################################
+
+from azureml.core.model import InferenceConfig
+inference_config = InferenceConfig(source_directory="aml_deploy_prj",
+                                   runtime= "python", 
+                                   entry_script="score.py",
+                                   conda_file="myenv-cpu.yml"#, 
+                                   #extra_docker_file_steps="helloworld.txt"
+                                   )
+
+
+
+from azureml.core.webservice import AciWebservice, Webservice
+from azureml.exceptions import WebserviceException
+
+deployment_config = AciWebservice.deploy_configuration(cpu_cores=1, memory_gb=2)
+aci_service_name = 'drone-aci-svc6'
+
+try:
+    # if you want to get existing service below is the command
+    # since aci name needs to be unique in subscription deleting existing aci if any
+    # we use aci_service_name to create azure aci
+    service = Webservice(ws, name=aci_service_name)
+    if service:
+        print(f"OK: Found service {aci_service_name} in state: {service.state} - deleting")
+        service.delete()
+except WebserviceException as e:
+    print(f"OK: service {aci_service_name} doesn't exist - no need to delete")
+
+service = Model.deploy(ws, aci_service_name, [model], inference_config, deployment_config)
+
+service.wait_for_deployment(True)
+print(service.state)
+
+if service.state != 'Healthy':
+    # run this command for debugging.
+    print(service.get_logs())
+    service.delete()
+
+# print(service.get_logs())
 
 
 # ################ ACI - without IMAGE #########################################
