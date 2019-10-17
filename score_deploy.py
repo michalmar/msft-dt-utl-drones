@@ -27,18 +27,18 @@ def init(locally=False):
         
     # init YOLO Class
     yolo = YOLO(model_path=model_path,anchors_path=os.path.join("aml_deploy_prj","model_data","yolo_anchors.txt"),classes_path=os.path.join("aml_deploy_prj","model_data","classes.txt"),model_image_size=(416, 416))
-    print(f"INFO: loaded model from path {model_path} and initialized YOLO class...")
+    # print(f"INFO: loaded model from path {model_path} and initialized YOLO class...")
 
 # note you can pass in multiple rows for scoring
 def run(raw_data):
     try:
-        print("opening image")
+        # print("opening image")
         image = Image.open(BytesIO(base64.b64decode(raw_data)))
-        print("detecting")
+        # print("detecting")
         out_dict = yolo.detect_image(image, output_detections=True)
-        print("done")
-        print(out_dict)
-        print(out_dict["detections"])
+        # print("done")
+        # print(out_dict)
+        # print(out_dict["detections"])
         # you can return any datatype as long as it is JSON-serializable
         return out_dict["detections"]
     except Exception as e:

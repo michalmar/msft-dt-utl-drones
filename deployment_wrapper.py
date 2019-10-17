@@ -123,9 +123,9 @@ os.makedirs(script_folder, exist_ok=True)
 USE_GPU = True
 if (USE_GPU):
         
-    myenv = CondaDependencies.create(conda_packages=['cudatoolkit==9.0','cudnn=7.1.2','numpy==1.14.5','keras==2.2.4','Pillow','matplotlib'])
-    # myenv = CondaDependencies.create(conda_packages=['numpy','keras','Pillow','matplotlib'])
-    myenv.add_tensorflow_pip_package(core_type="gpu", version="1.12.0")
+    # myenv = CondaDependencies.create(conda_packages=['cudatoolkit==9.0','cudnn=7.1.2','numpy==1.14.5','keras==2.2.4','Pillow','matplotlib'])
+    myenv = CondaDependencies.create(conda_packages=['numpy','keras','Pillow','matplotlib'])
+    myenv.add_tensorflow_pip_package(core_type="gpu", version="1.13.1")
 
     with open(os.path.join(script_folder,"myenv-gpu.yml"),"w") as f:
         f.write(myenv.serialize_to_string())
@@ -143,12 +143,14 @@ USE_GPU = True
 from azureml.core.image import Image, ContainerImage
 if (USE_GPU):
     print("GPU Image")
+    # the my-gpu:latest image must exist in ACR -> it has been done manually
     image_config = ContainerImage.image_configuration(runtime= "python",
                                  execution_script="score_deploy.py",
-                                 conda_file="aml_deploy_prj/myenv-gpu.yml",
+                                #  conda_file="aml_deploy_prj/myenv-gpu.yml",
                                  dependencies=["aml_deploy_prj", "font"],
                                  tags = {'type': "yolov3"},
-                                 docker_file = "./aml_deploy_prj/docker_file_steps_gpu.txt",
+                                 base_image="dtutldronesv588b2bf1.azurecr.io/my-gpu:latest",
+                                #  docker_file = "./aml_deploy_prj/docker_file_steps_gpu.txt",
                                  description = "Image with Drones detection model")
     # image_config.base_image = xrun.properties["AzureML.DerivedImageName"]
     image = Image.create(name = "dronesv2-img-gpu",
@@ -182,100 +184,88 @@ image.wait_for_creation(show_output = True)
 
 
 
-#### IMAGE FROM UTILS
-from azureml.core.image import Image
 
-image_config = ContainerImage.image_configuration(runtime= "python",
-                                 execution_script="score_deploy.py",
-                                 conda_file="aml_deploy_prj/myenv-gpu.yml",
-                                 dependencies=["aml_deploy_prj", "font"],
-                                 tags = {'type': "yolov3"},
-                                 description = "Image with Drones detection model"
-                                 , docker_file = "./aml_deploy_prj/docker_file_steps_gpu.txt"
-                                 , enable_gpu=True
-                                 )
-    
-image = Image.create(name = "dronesv2-img-gpu",
-                     # this is the model object. note you can pass in 0-n models via this list-type parameter
-                     # in case you need to reference multiple models, or none at all, in your scoring script.
-                     models = [model],
-                     image_config = image_config, 
-                     workspace = ws)
+# ################ AKS #########################################
+# from azureml.core.compute.aks import AksCompute
+# from azureml.core.webservice.aks import AksWebservice
+# from azureml.core.webservice import Webservice
 
-image.wait_for_creation(show_output = True)
+# aks_target = AksCompute(ws,"aks-gpu1")
+# aks_service_name = "drone-aks-svc-gpu-2"
+# # If deploying to a cluster configured for dev/test, ensure that it was created with enough
+# # cores and memory to handle this deployment configuration. Note that memory is also used by
+# # things such as dependencies and AML components.
+# aksconfig = AksWebservice.deploy_configuration(cpu_cores = 2, memory_gb = 4)
 
-# # List images by tag and find out the detailed build log for debugging.
-# for i in Image.list(workspace = ws):
-#     print('{}(v.{} [{}]) stored at {} with build log {}'.format(i.name, i.version, i.creation_state, i.image_location, i.image_build_log_uri))
-# print()
+# aks_service = Webservice.deploy_from_image(deployment_config = aksconfig,
+#                                            deployment_target=aks_target,
+#                                            image = image,
+#                                            name = aks_service_name,
+#                                            workspace = ws)
+# aks_service.wait_for_deployment(True)
+# print(aks_service.state)
+
+# print(aks_service.get_logs())
 
 
 
+# ##########ACI##################################################################
 
-################ AKS #########################################
-from azureml.core.compute.aks import AksCompute
-from azureml.core.webservice.aks import AksWebservice
-from azureml.core.webservice import Webservice
+# from azureml.core.model import InferenceConfig
 
-aks_target = AksCompute(ws,"myaks-drone1")
-aks_service_name = "drone-aks-svc"
-# If deploying to a cluster configured for dev/test, ensure that it was created with enough
-# cores and memory to handle this deployment configuration. Note that memory is also used by
-# things such as dependencies and AML components.
-aksconfig = AksWebservice.deploy_configuration(cpu_cores = 1, memory_gb = 2)
-
-aks_service = Webservice.deploy_from_image(deployment_config = aksconfig,
-                                           deployment_target=aks_target,
-                                           image = image,
-                                           name = aks_service_name,
-                                           workspace = ws)
-aks_service.wait_for_deployment(True)
-print(aks_service.state)
-
-print(aks_service.get_logs())
+# inference_config = InferenceConfig(source_directory="aml_deploy_prj",
+#                                    runtime= "python", 
+#                                    entry_script="score.py",
+#                                 #    conda_file="myenv-cpu.yml"#, 
+#                                    #extra_docker_file_steps="helloworld.txt"
+#                                    )
 
 
 
-##########ACI##################################################################
+# from azureml.core.webservice import AciWebservice, Webservice
+# from azureml.exceptions import WebserviceException
 
-from azureml.core.model import InferenceConfig
-inference_config = InferenceConfig(source_directory="aml_deploy_prj",
-                                   runtime= "python", 
-                                   entry_script="score.py",
-                                   conda_file="myenv-cpu.yml"#, 
-                                   #extra_docker_file_steps="helloworld.txt"
-                                   )
+# deployment_config = AciWebservice.deploy_configuration(cpu_cores=2, memory_gb=4   )
+
+# aci_service_name = 'drone-aci-svc-gpu'
+# aci_service = Webservice.deploy_from_image(deployment_config = deployment_config,
+#                                         #    deployment_target=aks_target,
+#                                            image = image,
+#                                            name = aci_service_name,
+#                                            workspace = ws)
+# aci_service.wait_for_deployment(True)
+# print(aci_service.state)
+
+# print(aci_service.get_logs())
+
+
+# aci_service_name = 'drone-aci-svc6'
+
+# try:
+#     # if you want to get existing service below is the command
+#     # since aci name needs to be unique in subscription deleting existing aci if any
+#     # we use aci_service_name to create azure aci
+#     service = Webservice(ws, name=aci_service_name)
+#     if service:
+#         print(f"OK: Found service {aci_service_name} in state: {service.state} - deleting")
+#         service.delete()
+# except WebserviceException as e:
+#     print(f"OK: service {aci_service_name} doesn't exist - no need to delete")
+
+# service = Model.deploy(ws, aci_service_name, [model], inference_config, deployment_config)
+
+# service.wait_for_deployment(True)
+# print(service.state)
+
+# if service.state != 'Healthy':
+#     # run this command for debugging.
+#     print(service.get_logs())
+#     service.delete()
+
+# # print(service.get_logs())
 
 
 
-from azureml.core.webservice import AciWebservice, Webservice
-from azureml.exceptions import WebserviceException
-
-deployment_config = AciWebservice.deploy_configuration(cpu_cores=1, memory_gb=2)
-aci_service_name = 'drone-aci-svc6'
-
-try:
-    # if you want to get existing service below is the command
-    # since aci name needs to be unique in subscription deleting existing aci if any
-    # we use aci_service_name to create azure aci
-    service = Webservice(ws, name=aci_service_name)
-    if service:
-        print(f"OK: Found service {aci_service_name} in state: {service.state} - deleting")
-        service.delete()
-except WebserviceException as e:
-    print(f"OK: service {aci_service_name} doesn't exist - no need to delete")
-
-service = Model.deploy(ws, aci_service_name, [model], inference_config, deployment_config)
-
-service.wait_for_deployment(True)
-print(service.state)
-
-if service.state != 'Healthy':
-    # run this command for debugging.
-    print(service.get_logs())
-    service.delete()
-
-# print(service.get_logs())
 
 
 # ################ ACI - without IMAGE #########################################
@@ -299,3 +289,69 @@ if service.state != 'Healthy':
 # print(service.state)
 
 # print(service.get_logs())
+
+# #######################################################################################
+# # AKS GPU
+# # https://docs.microsoft.com/en-us/azure/machine-learning/service/how-to-deploy-inferencing-gpus
+# # WORKING BUT SLOW????
+
+# from azureml.core.compute import ComputeTarget, AksCompute
+# from azureml.exceptions import ComputeTargetException
+
+# # Choose a name for your cluster
+# aks_name = "aks-gpu1"
+
+# # Check to see if the cluster already exists
+# try:
+#     aks_target = ComputeTarget(workspace=ws, name=aks_name)
+#     print('Found existing compute target')
+# except ComputeTargetException:
+#     print('Creating a new compute target...')
+#     # Provision AKS cluster with GPU machine
+#     prov_config = AksCompute.provisioning_configuration(vm_size="Standard_NC6s_v3")
+
+#     # Create the cluster
+#     aks_target = ComputeTarget.create(
+#         workspace=ws, name=aks_name, provisioning_configuration=prov_config
+#     )
+
+#     aks_target.wait_for_completion(show_output=True)
+
+
+# from azureml.core.webservice import AksWebservice
+
+# gpu_aks_config = AksWebservice.deploy_configuration(autoscale_enabled=False,
+#                                                     num_replicas=3,
+#                                                     cpu_cores=2,
+#                                                     memory_gb=4)
+
+
+
+
+# from azureml.core.model import InferenceConfig
+
+
+# inference_config = InferenceConfig(source_directory="aml_deploy_prj",
+#                                    runtime= "python", 
+#                                    base_image="dtutldronesv588b2bf1.azurecr.io/my-gpu:latest",
+#                                    entry_script="score.py",
+#                                 #    conda_file="myenv-gpu.yml",
+#                                    enable_gpu=True
+#                                    )
+
+
+
+# # Name of the web service that is deployed
+# aks_service_name = 'drones-aks-gpu3'
+
+# # Deploy the model
+# aks_service = Model.deploy(ws,
+#                            models=[model],
+#                            inference_config=inference_config,
+#                            deployment_config=gpu_aks_config,
+#                            deployment_target=aks_target,
+#                            name=aks_service_name)
+
+# aks_service.wait_for_deployment(show_output=True)
+# print(aks_service.state)
+

@@ -12,9 +12,9 @@ dependencies:
 
 - pip:
   - azureml-defaults==1.0.65.*
-  - tensorflow-gpu==1.12.0
-- numpy==1.14.5
-- keras==2.2.4
+  - tensorflow-gpu==1.13.1
+- numpy
+- keras
 - Pillow
 - matplotlib
 channels:
