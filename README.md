@@ -44,12 +44,71 @@
 ### 03 Inference
 
 **single image**
+
 `python yolo_video.py --image --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export-20190618/classes.txt `
 
 **Video**
+
 `python yolo_video.py --input ../data-in/video_test/test_110sec.mp4 --output ../data-out/test_110sec_DETECTED_20190808.mp4 --model_path outputs/trained_weights_final.h5 --classes_path vott-json-export/classes.txt`
 > note: number of classes must be same as for training (otherwise error with mismatch dimension can appear)
 > better to use correct classess file from training `--classes_path ./vott-json-export-20190808/classes.txt`
+
+
+### 04 Deployment for Inference
+
+#### GPU - Create custom DOCKER image with GPU Support 
+1. Init
+
+```bash
+az login --tenant 72f988bf-86f1-41af-91ab-2d7cd011db47
+az account set --subscription 6ee947fa-0d77-4915-bf68-4a83a8bec2a4
+sudo az acr login --name dtutldronesv588b2bf1
+```
+
+1. Build custom Base Image (Dockerfile je v aml_deploy_prj
+
+```bash
+sudo docker build -f Dockerfile -t my-gpu:2 .
+sudo docker tag my-gpu:2 dtutldronesv588b2bf1.azurecr.io/my-gpu
+sudo docker push dtutldronesv588b2bf1.azurecr.io/my-gpu
+```
+
+1. Create image based on the custom image
+
+Run Python script for upload 
+```bash 
+deployment_wrapper.py 
+```
+
+1. Deployment of custom images
+```bash
+sudo docker pull dtutldronesv588b2bf1.azurecr.io/dronesv2-img-gpu:16
+```
+1. Run GPU image
+```bash
+sudo docker run --runtime=nvidia  -p 32770:5001 f3af9a1c3823
+```
+
+SCORING URI - GPU: 
+
+`http://mma-gpu.westeurope.cloudapp.azure.com:32770/score`
+
+SCORING URI - ACI:
+
+`http://320da5d7-64ff-4fc2-b316-eace399670d2.westeurope.azurecontainer.io/score`
+
+
+
+**CLEANSE Docker environment**
+
+Remove all containers
+
+`docker rm $(docker ps -aq)`
+
+Remove all images
+
+`docker rmi $(docker images -q)`
+
 
 
 
